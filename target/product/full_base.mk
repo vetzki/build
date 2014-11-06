@@ -21,6 +21,7 @@
 
 PRODUCT_PACKAGES := \
     libfwdlockengine \
+    libjni_latinime \
     WAPPushManager
 
 PRODUCT_PACKAGES += \
