@@ -308,7 +308,14 @@ ifneq ($(filter sdk win_sdk sdk_addon,$(MAKECMDGOALS)),)
 is_sdk_build := true
 endif
 
-ADDITIONAL_BUILD_PROPERTIES += dalvik.vm.isa.$(TARGET_ARCH).features=$(DEX2OAT_TARGET_INSTRUCTION_SET_FEATURES)
+# Add build properties for ART. These define system properties used by installd
+# to pass flags to dex2oat.
+ADDITIONAL_BUILD_PROPERTIES += persist.sys.dalvik.vm.lib.2=libart
+ADDITIONAL_BUILD_PROPERTIES += dalvik.vm.isa.$(TARGET_ARCH).variant=$(DEX2OAT_TARGET_CPU_VARIANT)
+ifneq ($(DEX2OAT_TARGET_INSTRUCTION_SET_FEATURES),)
+  ADDITIONAL_BUILD_PROPERTIES += dalvik.vm.isa.$(TARGET_ARCH).features=$(DEX2OAT_TARGET_INSTRUCTION_SET_FEATURES)
+endif
+
 ifdef TARGET_2ND_ARCH
 ADDITIONAL_BUILD_PROPERTIES += dalvik.vm.isa.$(TARGET_2ND_ARCH).features=$($(TARGET_2ND_ARCH_VAR_PREFIX)DEX2OAT_TARGET_INSTRUCTION_SET_FEATURES)
 endif
@@ -333,15 +340,14 @@ ifneq (,$(user_variant))
     enable_target_debugging :=
   endif
 
-  # Turn on Dalvik preoptimization for libdvm.so user builds, but only if not
+  # Turn on Dalvik preoptimization for user builds, but only if not
   # explicitly disabled and the build is running on Linux (since host
   # Dalvik isn't built for non-Linux hosts).
   ifeq (,$(WITH_DEXPREOPT))
-    ifeq ($(DALVIK_VM_LIB),libdvm.so)
-      ifeq ($(user_variant),user)
-        ifeq ($(HOST_OS),linux)
-          WITH_DEXPREOPT := true
-        endif
+    ifeq ($(user_variant),user)
+      ifeq ($(HOST_OS),linux)
+        # TODO: turn on WITH_DEXPREOPT for libart user builds.
+        # WITH_DEXPREOPT := true
       endif
     endif
   endif
