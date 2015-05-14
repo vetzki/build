@@ -19,7 +19,6 @@
 
 PRODUCT_PACKAGES := \
     Bluetooth \
-    Camera2 \
     OneTimeInitializer \
     Provision \
     SystemUI \
